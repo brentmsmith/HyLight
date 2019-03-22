@@ -21,9 +21,9 @@ The third line uses the PySerial `write` function to send a string to the transm
 
 The string to be sent to the transmitter via PySerial should be formatted as:  
 
-_0th_: The receiver number. This number accesses the RF address stored on the transmitter arduino and opens a communication pipe with the receiver arduino that has the specified address stored on it. There are 8 addresses in the transmitter arduino code, and each receiver is flashed with a unique address out of those 8. A receiver number of 0 in the string will open a communication pipe with the receiver labeled _"SciHub HyLighter Receiver #01"_, a receiver number of 1 will open a pipe with the receiver labeled _"SciHub HyLighter Receiver #02"_, and so on...   
-_1st_: The duty cycle of the 1st LED  
-_2nd_: The duty cycle or the 2nd LED  
-.  
-.  
-etc.  
+- _0th_: The receiver number. This number accesses the RF address stored on the transmitter arduino and opens a communication pipe with the receiver arduino that has the specified address stored on it. There are 8 addresses in the transmitter arduino code, and each receiver is flashed with a unique address out of those 8. A receiver number of 0 in the string will open a communication pipe with the receiver labeled _"SciHub HyLighter Receiver #01"_, a receiver number of 1 will open a pipe with the receiver labeled _"SciHub HyLighter Receiver #02"_, and so on...   
+- _1st_: The duty cycle of the 1st LED  
+- _2nd_: The duty cycle of the 2nd LED  
+- .  
+- .  
+- _10th_: The duty cycle of the 10th LED  
