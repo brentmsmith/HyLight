@@ -16,7 +16,7 @@ ard.write('0 40 0 0 0 0 0 0 0 0 0'.encode())
 If PySerial is not installed, install using: $ sudo pip install pyserial
 The first line imports PySerial
 The second line creates a PySerial object, where the first argument is the serial port location, and the second argument is the baud rate (must be set to 9600)
-The third line uses the write function to send a string to the transmitter arduino. This string then gets parsed into integers in the transmitter arduino, and 10 of those integers are transmitted to a receiver arduino. The first number in the string is the receiver number. This number is used to access a receiver address that is stored in the transmitter arduino memory. The subsequent 10 numbers are the LED duty-cycles. These values have a max of 4096, **but should never exceed 15% of this number (<=409)**. 
+The third line uses the write function to send a string to the transmitter arduino. This string then gets parsed into integers in the transmitter arduino, and 10 of those integers are transmitted to a receiver arduino. The first number in the string is the receiver number. This number is used to access a receiver address that is stored in the transmitter arduino memory. The subsequent 10 numbers are the LED duty-cycles. These values have a max of 4096, **but should never exceed 15% of this number (<=614)**. 
 
 The string to be sent to the transmitter via PySerial should be formatted as:
 
