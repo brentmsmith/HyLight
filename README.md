@@ -19,6 +19,7 @@ The second line creates a PySerial object, where the first argument is the seria
 The third line uses the write function to send a string to the transmitter arduino. This string then gets parsed into integers in the transmitter arduino, and 10 of those integers are transmitted to a receiver arduino. The first number in the string is the receiver number. This number is used to access a receiver address that is stored in the transmitter arduino memory. The subsequent 10 numbers are the LED duty-cycles. These values have a max of 4096, **but should never exceed 15% of this number (<=409)**. 
 
 The string to be sent to the transmitter via PySerial should be formatted as:
+
 0th: The receiver number. This number accesses the address stored on the transmitter and opens a communication pipe with the receiver of the same address. There are 8 addresses in the transmitter arduino code, and each receiver is flashed with a unique address out of those 8. 
 
 1st: The duty cycle of the 1st LED
