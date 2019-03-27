@@ -4,18 +4,18 @@
 
 To send an RGB color of (187, 70, 192) to the HyLighter board, the following python code can be run:
 ```
-from pyhylight import send, 
+from pyhylight import send, hylrgb
 
-ard.port = '/dev/tty.usbmodem1411'
-ard.open()
-send(0,hylrgb((187, 70, 192)))
+ard.port = '/dev/tty.usbmodem1411' # The path of your transmitter Arduino port will be different. Try finding it using the Arduino IDE
+ard.open()                         # Opens the serial communication port with the transmitter. 
+send(0,hylrgb((187, 70, 192)))     # Sends the RGB color (187, 70, 192) to the transmitter to be displayed on a HyLight
 ```
 
-To send an RGB color that corresponds to Mary's note-color synesthesia, you can send an A natural with:
+To send an RGB color that corresponds to Mary's note-color synesthesia, you can send an A flat with:
 ```
 from pyhylight import *
 
 ard.port = '/dev/tty.usbmodem1411'
 ard.open()
-send(0,hylrgb(maryrgb['A']))
+send(0,hylrgb(maryrgb['Ab']))      # Mary's synesthesia RGB colors are preloaded in a dictionary called maryrgb, and can be referenced by note name
 ```
