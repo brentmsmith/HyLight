@@ -1,6 +1,6 @@
 '''
 
-Run this code to test the PyHyLight library, the NRF-Arduino 
+Run this code to test the PyHyLight library, the NRF-Arduino
 transmitter/receiver modules, and the HyLight boards themselves
 
 '''
@@ -10,7 +10,7 @@ import numpy as np
 import time
 
 # Open ard serial port
-ard.port = '/dev/tty.usbmodem1411' # Change this to your actual transmitter arduino serial port path
+ard.port = '/dev/ttyACM0' # Change this to your actual transmitter arduino serial port path
 ard.open()
 notes = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
 off = np.zeros(10) # Array of zeros to turn off HyLights
