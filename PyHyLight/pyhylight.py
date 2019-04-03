@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.integrate import simps
 from scipy.interpolate import InterpolatedUnivariateSpline as interp
+from scipy.optimize import least_squares
 import serial,sys,glob
 
 maryrgb = {'Ab':(247,75,39), 'A':(255,130,155), 'Bb':(254,123,13), 'B':(254,183,108), 'C':(255,213,0), 'Db':(255,253,175), 'D':(132,255,182), 'Eb':(1,50,252), 'E':(168,227,255), 'F':(225,160,255), 'Gb':(224,215,255), 'G':(60,186,45), 'A#':(254,183,108), 'C#':(255,253,175), 'D#':(1,50,252), 'F#':(225,160,255), 'G#':(247,75,39)} #Mary's note-RGB value synesthesia. 
@@ -295,6 +296,47 @@ def rgb2hsv(rgb):
 		s = (rgbmax-rgbmin)/rgbmax
 	return np.array([h,s,rgbmax])
 
+def hsv2rgb(hsv):
+	'''
+	Converts HSV values to RGB values.
+	
+	Args:
+		hsv: array_like
+			The HSV value to be converted into RGB values. Valid ranges
+			for H are 0-360, S are 0-100 or 0-1, and V are 0-100 or 0-1.
+
+	Returns:
+		rgb: ndarray
+			The RGB values calculated from the input HSV values.	
+	'''
+	hsv = np.asarray(hsv,dtype=float)
+	if hsv[0]<0.:
+		hsv[0] = hsv[0]+360.
+	elif hsv[0]>360.:
+		hsv[0] = hsv[0]-360.
+	if hsv[1]>1.:
+		hsv[1] = hsv[1]/100.
+	if hsv[2]>1.:
+		hsv[2] = hsv[2]/100.
+	c = hsv[2]*hsv[1]
+	h2 = hsv[0]/60.
+	x = c*(1-np.abs(h2%2.-1.))
+	if h2<=1. and h2>=0.:
+		r2,g2,b2 = c,x,0.
+	elif h2<=2. and h2>=1.:
+		r2,g2,b2 = x,c,0.
+	elif h2<=3. and h2>=2:
+		r2,g2,b2 = 0,c,x
+	elif h2<=4 and h2>=3:
+		r2,g2,b2 = 0,x,c
+	elif h2<=5 and h2>=4:
+		r2,g2,b2 = x,0,c
+	elif h2<=6 and h2>=5:
+		r2,g2,b2 = c,0,x
+	else:
+		r2,g2,b2 = 0,0,0
+	return np.array([r2,g2,b2])+hsv[2]-c
+
 def rgb2hsl(rgb):
 	'''
 	Converts RGB values to HSL values.
@@ -320,6 +362,80 @@ def rgb2hsl(rgb):
 	else:
 		s=(rgbmax-rgbmin)/(1-np.abs(rgbmax+rgbmin-1))
 	return np.array([h,s,(rgbmax+rgbmin)/2])
+
+def hsl2rgb(hsl):
+	'''
+	Converts HSL values to RGB values.
+	
+	Args:
+		hsl: array_like
+			The HSL value to be converted into RGB values.
+
+	Returns:
+		rgb: ndarray
+			The RGB values calculated from the input HSL values.	
+	'''
+	hsl = np.asarray(hsl,dtype=float)
+	c = (1.-np.abs(2.*hsl[2]-1.))*hsl[1]
+	h2 = hsl[0]/60
+	x = c*(1.-np.abs(h2%2.-1.))
+	if h2<=1. and h2>=0.:
+		r2,g2,b2 = c,x,0.
+	elif h2<=2. and h2>=1.:
+		r2,g2,b2 = x,c,0.
+	elif h2<=3. and h2>=2:
+		r2,g2,b2 = 0,c,x
+	elif h2<=4 and h2>=3:
+		r2,g2,b2 = 0,x,c
+	elif h2<=5 and h2>=4:
+		r2,g2,b2 = x,0,c
+	elif h2<=6 and h2>=5:
+		r2,g2,b2 = c,0,x
+	else:
+		r2,g2,b2 = 0,0,0
+	return np.array([r2,g2,b2])+hsl[2]-c/2
+
+def cmyk2rgb(cmyk):
+	'''
+	Converts CMYK values to RGB values.
+	
+	Args:
+		cmyk: array_like
+			The CMYK value to be converted into RGB values. 
+
+	Returns:
+		rgb: ndarray
+			The RGB values calculated from the input CMYK values.	
+	'''
+	if np.any(cmyk>1.):
+		cmyk=cmyk/100.
+	cmyk = np.asarray(cmyk,dtype=float)
+	return np.array([(1.-cmyk[0])*(1.-cmyk[3]),(1.-cmyk[1])*(1.-cmyk[3]),(1.-cmyk[2])*(1.-cmyk[3])])
+
+def coltemp(T):
+	'''
+	Converts temperature in Kelvin to PWM values to be sent to the HyLight 
+	board. 	The function generates a blackbody curve using the Planck function, 
+	then fits the combined LED spectrum XYZ values to the blackbody curve XYZ
+	values using least squares.
+	
+	Args:
+		T: float
+			The color temperature for the HyLight to simulate
+
+	Returns:
+		pwm: ndarray
+			The PWM values to be sent to the HyLight board.
+	
+	'''
+	h,c,k=6.62607004e-34,2.99792458e8,1.38064852e-23
+	bbspec = 2.*h*c**2./(leds[:,0]*1e-9)**5./(np.exp(h*c/(leds[:,0]*1e-9*k*T))-1.)
+	bbspec = bbspec*100/np.amax(bbspec)
+	def resid(p):
+		s1,s2,s3,s4,s5,s6,s7,s8,s9 = p
+		return ((calxyz(leds[:,0],np.sum(p*leds[:,1:10],axis=1))-calxyz(leds[:,0],bbspec)))
+	dtycyc = least_squares(resid,x0=np.ones(9),loss='cauchy',xtol=1e-10,max_nfev=1000,method='trf', bounds=(0.,np.inf))
+	return np.append(dtycyc.x,0)*0.1*4096./np.amax(dtycyc.x)
 
 def hylrgb(rgb):
 	'''
@@ -354,8 +470,7 @@ def hylrgb(rgb):
 	pwm[led2] += vpwm[0]
 	pwm[led1] += vpwm[1]
 	pwm[pwm<0]=0 # Set negative PWM values to 0
-	pwm = np.append(pwm,0) # Not using IR LED
-	return pwm.astype(int) # Return integers
+	return np.append(pwm,0.)*0.1*4096./np.amax(pwm) # Not using IR LED
 	
 def send(ard,addr,pwms,power=1.,autoscale=True):
 	'''
@@ -398,14 +513,8 @@ def send(ard,addr,pwms,power=1.,autoscale=True):
 	if pwms.size!=10: # Check if all the LEDs are being addressed. If not, raise an excepction.
 		raise MissingVals('List of PWMs to be sent must contain exactly 10 elements')
 	pwms = (pwms[idxcor]).astype(int) # Reorder the PWM values in the correct order so the ArNRF PCB sends the value to the correct LEDs
-	command = str(addr)+' ' # Initializig the string to be transmitted to a receiver
+	command = str(int(addr))+' ' # Initializig the string to be transmitted to a receiver
 	for pwm in pwms:
 		command+=str(pwm)+' '  # Appending the all PWM values to the string to be transmitted
-	command += '0'
 	ard.write(command.encode()) # Sending the command to the transmitter for transmission 
 
-'''#This short for-loop shows how one could cycle through Mary's synesthesia using the HyLight board
-for note in ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']:
-	send(0,hylrgb(maryrgb[note]),power=10)
-	time.sleep(1.)
-'''
