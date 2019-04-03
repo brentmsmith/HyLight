@@ -90,25 +90,6 @@ def numtonote(num):
 	n = h % 12
 	return ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'][int(n)]
 
-
-def labf(t):
-	'''
-	Function used to calulate the Lightness in the L*a*b* color space from
-	the relative luminance of XYZ values to reference white, in this case D65. 
-	
-	Args:
-		t: float
-			The relative luminance of an X, Y, or Z value
-
-	Returns:
-		output: float
-			The functional output used for calculating L*a*b* values from the
-			XYZ relative luminance values
-	'''
-	if t>216./24389.:
-		return t**(1./3.)
-	return ((24389./27.)*t+16.)/116.
-
 def xyz2lab(xyz):
 	'''
 	Converts tristimulus XYZ values into CIE L*a*b* color space values.
@@ -121,6 +102,10 @@ def xyz2lab(xyz):
 		lab: ndarray
 			The CIE L*a*b* values calculated from the input XYZ values.	
 	'''
+	def labf(t):
+		if t>216./24389.:
+			return t**(1./3.)
+		return ((24389./27.)*t+16.)/116.
 	if np.sum(xyz)<3.04:
 		xyz = xyz*100.
 	fx = labf(xyz[0]/94.811)
