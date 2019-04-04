@@ -1,8 +1,8 @@
 #include <SPI.h>
-#include <nRF24L01.h>
+#include <nRF24L01.h> //https://github.com/nRF24/RF24
 #include <RF24.h>
 #include <Wire.h>
-#include <Adafruit_PWMServoDriver.h>
+#include <Adafruit_PWMServoDriver.h> //https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library
 
 #define CE_PIN  9
 #define CSN_PIN 10
