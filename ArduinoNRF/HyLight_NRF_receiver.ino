@@ -7,7 +7,7 @@
 #define CE_PIN  9
 #define CSN_PIN 10
 
-const byte thisSlaveAddress[5] = {'P','o','4','G','J'};
+const byte thisSlaveAddress[5] = {'R','x','L','A','A'};
 /* Other slave addresses are:
  * {'R','x','L','A','A'}
  * {'R','x','A','Q','B'}
