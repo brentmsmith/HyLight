@@ -4,7 +4,7 @@ Any form of serial communication can be used to send data to the a transmitter. 
 
 
 Sending the 10 HyLight LED duty-cycles using PySerial:  
-```
+```python
 import serial 
 ard = serial.Serial('/dev/cu.usbmodem1481',9600) 
 ard.write('0 40 0 0 0 0 0 0 0 0 0'.encode()) 
