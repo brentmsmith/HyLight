@@ -4,6 +4,8 @@
 
 #define CE_PIN   9
 #define CSN_PIN 10
+#define SERIAL_RX_BUFFER_SIZE 256
+#define SERIAL_TX_BUFFER_SIZE 256
 
 RF24 radio(CE_PIN, CSN_PIN); // Create a NRF24l01 object using the specified CE/CSN pins
 
@@ -45,7 +47,8 @@ void loop() {
     data[7] = Serial.parseInt();
     data[8] = Serial.parseInt();
     data[9] = Serial.parseInt();
+    radio.openWritingPipe(slaveAddress[rec]); // Open up a pipe to the designated HyLighter
+    radio.write( &data, sizeof(data) );       // Transmit the 10 integer array to the designated HyLighter board
   }
-  radio.openWritingPipe(slaveAddress[rec]); // Open up a pipe to the designated HyLighter
-  radio.write( &data, sizeof(data) );       // Transmit the 10 integer array to the designated HyLighter board
+
 }
